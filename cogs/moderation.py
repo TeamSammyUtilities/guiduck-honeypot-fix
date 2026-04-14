@@ -553,7 +553,9 @@ class Moderation(commands.Cog):
             created_at=message.created_at,
             expires_at=expires_at
         )
-
+        
+        action.delete_message_seconds = 3600
+        
         await action.notify()
         await action.execute(FakeContext(self.bot, message.guild))
 
