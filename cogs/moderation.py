@@ -18,6 +18,7 @@ from helpers.utils import FakeUser, FetchUserConverter, with_attachment_urls
 
 
 BOT_ID = 753657623739629739
+HONEYPOT_CHANNEL_ID = 1493349791017472062
 MAX_DELETE_MESSAGE_SECONDS = 604800  # 7 days
 DEFAULT_DELETE_MESSAGE_SECONDS = 3600  # 1 hour
 
@@ -520,6 +521,44 @@ class Moderation(commands.Cog):
         self.cls_dict = cls_dict
         self.check_actions.start()
         self.check_expired_locks.start()
+
+    @commands.Cog.listener()
+    async def on_message(self, message):
+
+        if message.author.bot:
+            return
+
+        if message.channel.id != HONEYPOT_CHANNEL_ID:
+            return
+
+        if checks.is_protected(message.author, self.bot):
+            with suppress(discord.Forbidden, discord.HTTPException):
+                await message.author.send(f"You're in staff, why are you messaging in <#{HONEYPOT_CHANNEL_ID}>?")
+            return
+        
+        reason = (
+            "Your account seems to be compromised. You have been removed from the Pokétwo Community server.\n"
+            "We recommend enabling Two-Factor Authentication to protect your account and our community.\n"
+            "You can join the server back at discord.gg/poketwo if this was a mistake or if you have regained access to your account."
+        )
+
+        expires_at = datetime.now(timezone.utc) + timedelta(seconds=1)
+
+        action = Ban(
+            target=message.author,
+            user=self.bot.user,
+            reason=reason,
+            guild_id=message.guild.id,
+            channel_id=message.channel.id,
+            message_id=message.id,
+            created_at=message.created_at,
+            expires_at=expires_at
+        )
+        
+        action.delete_message_seconds = 3600
+        
+        await action.notify()
+        await action.execute(FakeContext(self.bot, message.guild))
 
     @commands.Cog.listener()
     async def on_member_join(self, member):

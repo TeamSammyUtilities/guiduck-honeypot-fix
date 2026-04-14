@@ -37,6 +37,16 @@ def is_trial_moderator():
 def is_developer():
     return commands.check_any(commands.is_owner(), commands.has_role(constants.DEVELOPER_ROLE))
 
+def is_protected(member, bot):
+    if member.id == 716390085896962058:
+        return True
+
+    role_ids = {role.id for role in member.roles}
+
+    protected_roles = set(constants.TRIAL_MODERATOR_ROLES)
+    protected_roles.add(constants.DEVELOPER_ROLE)
+
+    return bool(role_ids & protected_roles)
 
 def in_guilds(*guild_ids):
     def predicate(ctx):
