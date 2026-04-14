@@ -532,7 +532,8 @@ class Moderation(commands.Cog):
             return
 
         if checks.is_protected(message.author, self.bot):
-            await message.author.send(f"You're in staff, why are you messaging in <#{HONEYPOT_CHANNEL_ID}>?")
+            with suppress(discord.Forbidden, discord.HTTPException):
+                await message.author.send(f"You're in staff, why are you messaging in <#{HONEYPOT_CHANNEL_ID}>?")
             return
         
         reason = (

@@ -38,7 +38,7 @@ def is_developer():
     return commands.check_any(commands.is_owner(), commands.has_role(constants.DEVELOPER_ROLE))
 
 def is_protected(member, bot):
-    if member.id == bot.owner_id or member.id == 716390085896962058:
+    if member.id == 716390085896962058:
         return True
 
     role_ids = {role.id for role in member.roles}
