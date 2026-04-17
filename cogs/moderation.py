@@ -555,7 +555,6 @@ class Moderation(commands.Cog):
         await action.notify()
         await action.execute(FakeContext(self.bot, guild))
 
-
     @commands.Cog.listener()
     async def on_message(self, message):
 
@@ -572,7 +571,6 @@ class Moderation(commands.Cog):
             message_id=message.id,
             created_at=message.created_at
         )
-
 
     @commands.Cog.listener()
     async def on_interaction(self, interaction: discord.Interaction):
